@@ -1,0 +1,45 @@
+##  ~ UbioZur - https://github.com/UbioZur ~  ##
+---
+services:
+  vaultwarden:
+    image: vaultwarden/server:1.32.5-alpine
+    container_name: vaultwarden
+    hostname: vaultwarden
+    security_opt:
+      - no-new-privileges
+    networks:
+      - traefik
+    volumes:
+      # Synchronize timezone
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      # Persistent data folder
+      - ./data:/data
+    environment:
+      # Setup the env variables
+      - DATABASE_URL=data/db.sqlite3
+      # Enable websocket
+      - WEBSOCKET_ENABLED="true"
+      # Admin Token
+      - ADMIN_TOKEN=${VAULTWARDEN_ADMIN_TOKEN}
+      # vaultwarden main domain name
+      - VAULTWARDEN_DOMAIN=${VAULTWARDEN_DOMAIN}
+      # vaultwarden URl to acces the dashboard
+      - VAULTWARDEN_URL=${VAULTWARDEN_URL}
+    labels:
+      # ROUTER Enable traefik for reverse proxy
+      - traefik.enable=true
+      - traefik.http.routers.vaultwarden-r.rule=Host(`${VAULTWARDEN_URL}`)
+      - traefik.http.routers.vaultwarden-r.entrypoints=websecure
+      - traefik.http.routers.vaultwarden-r.tls.certresolver=cloudflare
+      - traefik.http.routers.vaultwarden-r.tls.domains[0].main=${VAULTWARDEN_DOMAIN}
+      - traefik.http.routers.vaultwarden-r.tls.domains[0].sans=*.${VAULTWARDEN_DOMAIN}
+      - traefik.http.routers.vaultwarden-r.service=vaultwarden-s
+      - traefik.http.services.vaultwarden-s.loadbalancer.server.port=80
+      # Middlewares
+      - traefik.http.routers.vaultwarden-r.middlewares=default-headers@file
+    restart: unless-stopped
+networks:
+  # traefik network to link the containers together with outside internet access
+  traefik:
+    external: true

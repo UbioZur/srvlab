@@ -11,7 +11,7 @@ temp.md
 # Stratus Server
 stratus/dockers/traefik/certs/*
 stratus/dockers/traefik/logs/*
-
+stratus/dockers/vaultwarden/data/*
 
 # Allow all .gitkeep files even if they are in a folder to ignore
 */.gitkeep
