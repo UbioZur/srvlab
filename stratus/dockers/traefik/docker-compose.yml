@@ -1,0 +1,131 @@
+##  ~ UbioZur - https://github.com/UbioZur ~  ##
+---
+services:
+  traefik:
+    image: docker.io/library/traefik:v3.2.1
+    container_name: traefik
+    hostname: traefik
+    security_opt:
+      - no-new-privileges
+    networks:
+      - traefik
+    ports:
+      - 80:80
+      - 443:443
+      # --- (DEBUG) Port required to access the non secured dashboard
+      # - 8080:8080
+      # ---
+    volumes:
+      # Synchronize timezone
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      # Give access to the docker socks to read the labels
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # Let's Encrypts certificate mounting
+      - ./certs/:/var/traefik/certs/:rw
+      # Configuration Files
+      - ./config/conf.d/:/etc/traefik/conf.d/:ro
+      # --- (OPTIONAL) If you prefer to use config files instead of command
+      # - ./config/traefik.yaml:/etc/traefik/traefik.yaml:ro
+      # ---
+      # Log Files
+      - ./logs/:/var/logs/traefik
+    environment:
+      # Gandi API Keys (Set in .env file)
+      # - GANDIV5_PERSONAL_ACCESS_TOKEN=${TRAEFIK_GANDIV5_PERSONAL_ACCESS_TOKEN}
+      # Cloudflare API KEY (Set in .env file)
+      - CF_DNS_API_TOKEN=${TRAEFIK_CF_DNS_API_TOKEN}
+      # ACME Email to use
+      - TRAEFIK_ACME_EMAIL=${TRAEFIK_ACME_EMAIL}
+      # Traefik main domain name
+      - TRAEFIK_DOMAIN=${TRAEFIK_DOMAIN}
+      # Traefik URl to acces the dashboard
+      - TRAEFIK_DASHBOARD_URL=${TRAEFIK_DASHBOARD_URL}
+    command:
+      # PROVIDER: Docker
+      - "--providers.docker"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.endpoint=unix:///var/run/docker.sock"
+      # Provider: File / Folder
+      - "--providers.file.directory=/etc/traefik/conf.d"
+      - "--providers.file.watch=true"
+      # ENTRYPOINT: web, port 80, auto redirect to port 443
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
+      # ENTRYPOINT: webssl, port 443, with certificate resolvers
+      - "--entrypoints.websecure.address=:443"
+      #  CERT RESOLVER: Gandi
+      # - "--entrypoints.websecure.http.tls.certResolver=gandi"
+      # - "--certificatesresolvers.gandi.acme.email=${TRAEFIK_ACME_EMAIL}"
+      #    Production certification file
+      # - "--certificatesresolvers.gandi.acme.storage=/var/traefik/certs/acme-gandi.json"
+      # - "--certificatesresolvers.gandi.acme.caserver=https://acme-v02.api.letsencrypt.org/directory"
+      # --- (DEBUG) Staging certification files (Comment the production ones)
+      # - "--certificatesresolvers.gandi.acme.storage=/var/traefik/certs/acme-gandi-staging.json"
+      # - "--certificatesresolvers.gandi.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+      # ---
+      # - "--certificatesresolvers.gandi.acme.dnschallenge=true"
+      # - "--certificatesresolvers.gandi.acme.dnschallenge.provider=gandiv5"
+      # - "--certificatesresolvers.gandi.acme.dnschallenge.resolvers=217.70.177.40:53,217.70.177.42:53,1.1.1.1:53"
+      #  CERT RESOLVER: Cloudflare
+      - "--entrypoints.websecure.http.tls.certResolver=cloudflare"
+      - "--certificatesresolvers.cloudflare.acme.email=${TRAEFIK_ACME_EMAIL}"
+      #    Production certification file
+      - "--certificatesresolvers.cloudflare.acme.storage=/var/traefik/certs/acme-cloudflare.json"
+      - "--certificatesresolvers.cloudflare.acme.caserver=https://acme-v02.api.letsencrypt.org/directory"
+      # --- (DEBUG) Staging certification files (Comment the production ones)
+      # - "--certificatesresolvers.cloudflare.acme.storage=/var/traefik/certs/acme-cloudflare-staging.json"
+      # - "--certificatesresolvers.cloudflare.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+      # ---
+      - "--certificatesresolvers.cloudflare.acme.dnschallenge=true"
+      - "--certificatesresolvers.cloudflare.acme.dnschallenge.provider=cloudflare"
+      - "--certificatesresolvers.cloudflare.acme.dnschallenge.resolvers=1.1.1.1:53,1.0.0.1:53"
+      # LOGS
+      - "--log.level=WARN"
+      # --- (DEBUG) Use Debug Logs (Comment the previous one)
+      # - "--log.level=DEBUG"
+      # ---
+      # CONFIG
+      # Enable the dashboard
+      - "--api.dashboard=true"
+      # --- (DEBUG) Enable port 8080 for insecure API / dashboard
+      # - "--api.insecure=true"
+      # ---
+      # Enable the ping for health check
+      - "--ping=true"
+      # Allow backend to be insecured
+      - "--serversTransport.insecureSkipVerify=true"
+      # Disable update check
+      - "--global.checkNewVersion=false"
+      # Disable Telemetry
+      - "--global.sendAnonymousUsage=false"
+    labels:
+      # ROUTER Enable traefik for its dashboard
+      - traefik.enable=true
+      - traefik.http.routers.traefik-r.rule=Host(`${TRAEFIK_DASHBOARD_URL}`)
+      - traefik.http.routers.traefik-r.entrypoints=websecure
+      - traefik.http.routers.traefik-r.tls.certresolver=cloudflare
+      - traefik.http.routers.traefik-r.tls.domains[0].main=${TRAEFIK_DOMAIN}
+      - traefik.http.routers.traefik-r.tls.domains[0].sans=*.${TRAEFIK_DOMAIN}
+      - traefik.http.routers.traefik-r.service=api@internal
+      - traefik.http.services.traefik-s.loadbalancer.server.port=8080
+      # Middlewares
+      - traefik.http.routers.traefik-r.middlewares=secured@file
+      # --- (DEBUG) Remove IP Restrictions to debug (Comment previous line)
+      # - traefik.http.routers.traefik-r.middlewares=default-headers@file
+      # ---
+    healthcheck:
+      test: traefik healthcheck --ping
+    restart: unless-stopped
+networks:
+  # traefik network to link the containers together with outside internet access
+  traefik:
+    name: traefik
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.20.0/24
+        # Range 192.168.20.0 -> 192.168.20.255 254 IPs possible
+        # Gateway 192.168.20.1

@@ -1,0 +1,17 @@
+##  ~ UbioZur - https://github.com/UbioZur ~  ##
+
+# General files and folders to ignore
+.vscode/
+*.code-workspace
+temp.md
+
+# Sensitive informations are usually inside a .env file
+*/.env
+
+# Stratus Server
+stratus/dockers/traefik/certs/*
+stratus/dockers/traefik/logs/*
+
+
+# Allow all .gitkeep files even if they are in a folder to ignore
+*/.gitkeep

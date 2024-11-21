@@ -1,0 +1,29 @@
+##  ~ UbioZur - https://github.com/UbioZur ~  ##
+
+# Example Router / Service
+
+#http:
+#  routers:
+#
+#    ROUTER-NAME:
+#        rule: "Host(`URL`)"
+#        middlewares:
+#          - secured
+#        entryPoints:
+#          - websecure
+#        tls:
+#          certResolver: cloudflare | gandi
+#          domains:
+#            - main: "DOMAIN.TLD"
+#              sans:
+#                - "*.DOMAIN.TLD"
+#        service: SERVICE-NAME
+#
+#  services:
+#
+#    SERVICE-NAME:
+#      loadBalancer:
+#        servers:
+#          - url: "http://ip:port"
+#          - url: "https://domain.tld"
+#        passHostHeader: true

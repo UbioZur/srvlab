@@ -1,0 +1,36 @@
+##  ~ UbioZur - https://github.com/UbioZur ~  ##
+
+# Default Middlewares
+http:
+  middlewares:
+
+    # Default headers
+    default-headers:
+      headers:
+        accesscontrolmaxage: 100
+        browserXssFilter: true
+        contentTypeNosniff: true
+        customFrameOptionsValue: SAMEORIGIN
+        customRequestHeaders:
+          X-Forwarded-Proto: https
+        forceSTSHeader: true
+        frameDeny: true
+        hostsproxyheaders: X-Forwarded-Host
+        stsIncludeSubdomains: true
+        stsPreload: true
+        stsSeconds: 15552000
+
+    # Whitelist Local IPs
+    local-whitelist:
+      ipAllowList:
+        sourceRange:
+        - "10.0.0.0/8"
+        - "192.168.0.0/16"
+        - "172.16.0.0/12"
+
+    # Whitelist and Headers
+    secured:
+      chain:
+        middlewares:
+        - local-whitelist
+        - default-headers
