@@ -20,6 +20,18 @@ services:
       - JWT_ENABLED=true
       # Admin Token
       - JWT_SECRET=${JWT_SECRET}
+    labels:
+      # ROUTER Enable traefik for reverse proxy
+      - traefik.enable=true
+      - traefik.http.routers.onlyoffice-r.rule=Host(`${ONLYOFFICE_URL}`)
+      - traefik.http.routers.onlyoffice-r.entrypoints=websecure
+      - traefik.http.routers.onlyoffice-r.tls.certresolver=cloudflare
+      - traefik.http.routers.onlyoffice-r.tls.domains[0].main=${ONLYOFFICE_DOMAIN}
+      - traefik.http.routers.onlyoffice-r.tls.domains[0].sans=*.${ONLYOFFICE_DOMAIN}
+      - traefik.http.routers.onlyoffice-r.service=onlyoffice-s
+      - traefik.http.services.onlyoffice-s.loadbalancer.server.port=80
+      # Middlewares
+      - traefik.http.routers.onlyoffice-r.middlewares=secured@file
     restart: unless-stopped
   nextcloud:
     image: lscr.io/linuxserver/nextcloud:latest
@@ -54,6 +66,7 @@ services:
       - traefik.http.services.nextcloud-s.loadbalancer.server.port=80
       # Middlewares
       - traefik.http.routers.nextcloud-r.middlewares=default-headers@file
+    restart: unless-stopped
 networks:
   # traefik network to link the containers together with outside internet access
   traefik:
