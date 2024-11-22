@@ -20,6 +20,8 @@ services:
       - JWT_ENABLED=true
       # Admin Token
       - JWT_SECRET=${JWT_SECRET}
+      - ONLYOFFICE_DOMAIN=${ONLYOFFICE_DOMAIN}
+      - ONLYOFFICE_URL=${ONLYOFFICE_URL}
     labels:
       # ROUTER Enable traefik for reverse proxy
       - traefik.enable=true
