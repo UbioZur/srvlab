@@ -6,7 +6,7 @@
 temp.md
 
 # Sensitive informations are usually inside a .env file
-*/.env
+**/.env
 
 # Stratus Server
 stratus/dockers/traefik/certs/*
@@ -16,4 +16,4 @@ stratus/dockers/nextcloud/data/*
 stratus/dockers/nextcloud/config/*
 
 # Allow all .gitkeep files even if they are in a folder to ignore
-*/.gitkeep
+**/.gitkeep
