@@ -1,0 +1,60 @@
+##  ~ UbioZur - https://github.com/UbioZur ~  ##
+---
+services:
+  onlyoffice:
+    image: onlyoffice/documentserver:8.2
+    container_name: onlyoffice
+    hostname: onlyoffice
+    security_opt:
+      - no-new-privileges
+    networks:
+      - traefik
+    volumes:
+      # Synchronize timezone
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      # Persistent data folder
+      - ./data:/data
+    environment:
+      # Setup the env variables
+      - JWT_ENABLED=true
+      # Admin Token
+      - JWT_SECRET=${JWT_SECRET}
+    restart: unless-stopped
+  nextcloud:
+    image: lscr.io/linuxserver/nextcloud:latest
+    container_name: nextcloud
+    hostname: nextcloud
+    security_opt:
+      - no-new-privileges
+    networks:
+      - traefik
+    volumes:
+      # Synchronize timezone
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      # Persistent data folder
+      - ./data:/data
+      - ./config:/config
+    environment:
+      # Make sure we have the good PUID and GUID
+      - PUID=1000
+      - PGID=1000
+      - NEXTCLOUD_DOMAIN=${NEXTCLOUD_DOMAIN}
+      - NEXTCLOUD_URL=${NEXTCLOUD_URL}
+    labels:
+      # ROUTER Enable traefik for reverse proxy
+      - traefik.enable=true
+      - traefik.http.routers.nextcloud-r.rule=Host(`${NEXTCLOUD_URL}`)
+      - traefik.http.routers.nextcloud-r.entrypoints=websecure
+      - traefik.http.routers.nextcloud-r.tls.certresolver=cloudflare
+      - traefik.http.routers.nextcloud-r.tls.domains[0].main=${NEXTCLOUD_DOMAIN}
+      - traefik.http.routers.nextcloud-r.tls.domains[0].sans=*.${NEXTCLOUD_DOMAIN}
+      - traefik.http.routers.nextcloud-r.service=nextcloud-s
+      - traefik.http.services.nextcloud-s.loadbalancer.server.port=443
+      # Middlewares
+      - traefik.http.routers.nextcloud-r.middlewares=default-headers@file
+networks:
+  # traefik network to link the containers together with outside internet access
+  traefik:
+    external: true
