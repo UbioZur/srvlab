@@ -51,7 +51,7 @@ services:
       - traefik.http.routers.nextcloud-r.tls.domains[0].main=${NEXTCLOUD_DOMAIN}
       - traefik.http.routers.nextcloud-r.tls.domains[0].sans=*.${NEXTCLOUD_DOMAIN}
       - traefik.http.routers.nextcloud-r.service=nextcloud-s
-      - traefik.http.services.nextcloud-s.loadbalancer.server.port=443
+      - traefik.http.services.nextcloud-s.loadbalancer.server.port=80
       # Middlewares
       - traefik.http.routers.nextcloud-r.middlewares=default-headers@file
 networks:
