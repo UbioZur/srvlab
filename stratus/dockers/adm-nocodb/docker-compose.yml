@@ -20,17 +20,20 @@ services:
       - NC_DISABLE_TELE=true
       # Nocodb main domain name
       - NOCODB_DOMAIN=${NOCODB_DOMAIN}
-      # Nocodb URl to acces the dashboard
+      # Nocodb Public URL
       - NOCODB_URL=${NOCODB_URL}
+      # Nocodb Secondary URL
+      - NOCODB_URL2=${NOCODB_URL2}
       # Nocodb public url
-      - NC_PUBLIC_URL=${NOCODB_DOMAIN}
+      - NC_PUBLIC_URL=https://${NOCODB_URL}
     labels:
       # ROUTER Enable traefik for reverse proxy
       - traefik.enable=true
-      - traefik.http.routers.adm-nocodb-r.rule=Host(`${NOCODB_URL}`)
+      - traefik.http.routers.adm-nocodb-r.rule=Host(`${NOCODB_URL}`) || Host(`${NOCODB_URL2}`)
       - traefik.http.routers.adm-nocodb-r.entrypoints=websecure
       - traefik.http.routers.adm-nocodb-r.tls.certresolver=cloudflare
       - traefik.http.routers.adm-nocodb-r.tls.domains[0].main=${NOCODB_DOMAIN}
+      - traefik.http.routers.adm-nocodb-r.tls.domains[0].sans=*.${NOCODB_DOMAIN}
       - traefik.http.routers.adm-nocodb-r.service=adm-nocodb-s
       - traefik.http.services.adm-nocodb-s.loadbalancer.server.port=8080
       # Middlewares

@@ -19,5 +19,5 @@ install -m 600 .env.example .env
 Modify the env file
 
 * `NOCODB_DOMAIN`: Domain used for nocodb
-* `NOCODB_URL`: The URL used for the nocodb
-
+* `NOCODB_URL`: The public URL used for the nocodb
+* `NOCODB_URL2`: A secondary URL used to access nocodb
