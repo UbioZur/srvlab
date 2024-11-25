@@ -39,6 +39,7 @@ labels:
   - traefik.http.routers.myapp-r.tls.certresolver=cloudflare
   - traefik.http.routers.myapp-r.tls.domains[0].main=domain1.tld
   - traefik.http.routers.myapp-r.tls.domains[0].sans=*.domain1.tld
+  - traefik.http.routers.myapp-r.tls.domains[1].main=service.domain2.com
   - traefik.http.routers.myapp-r.service=myapp-s
   - traefik.http.services.myapp-s.loadbalancer.server.port=8080
 ````
