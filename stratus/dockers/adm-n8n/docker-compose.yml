@@ -1,0 +1,47 @@
+##  ~ UbioZur - https://github.com/UbioZur ~  ##
+---
+services:
+  adm-n8n:
+    image: docker.n8n.io/n8nio/n8n:1.68.0
+    container_name: adm-n8n
+    hostname: adm-n8n
+    security_opt:
+      - no-new-privileges
+    networks:
+      - traefik
+    volumes:
+      # Synchronize timezone
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      # Persistent data folder
+      - ./data:/home/node/.n8n
+    environment:
+      # Nocodb main domain name
+      - N8N_DOMAIN=${N8N_DOMAIN}
+      # Nocodb Public URL
+      - N8N_URL=${N8N_URL}
+      # Nocodb Secondary URL
+      - N8N_URL2=${N8N_URL2}
+      # Nocodb public url
+      - N8N_HOST=${N8N_URL2}
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=https
+      - NODE_ENV=production
+      - WEBHOOK_URL=https://${N8N_URL}/
+    labels:
+      # ROUTER Enable traefik for reverse proxy
+      - traefik.enable=true
+      - traefik.http.routers.adm-n8n-r.rule=Host(`${N8N_URL}`) || Host(`${N8N_URL2}`)
+      - traefik.http.routers.adm-n8n-r.entrypoints=websecure
+      - traefik.http.routers.adm-n8n-r.tls.certresolver=cloudflare
+      - traefik.http.routers.adm-n8n-r.tls.domains[0].main=${N8N_DOMAIN}
+      - traefik.http.routers.adm-n8n-r.tls.domains[0].sans=*.${N8N_DOMAIN}
+      - traefik.http.routers.adm-n8n-r.service=adm-n8n-s
+      - traefik.http.services.adm-n8n-s.loadbalancer.server.port=5678
+      # Middlewares
+      - traefik.http.routers.adm-n8n-r.middlewares=default-headers@file
+    restart: unless-stopped
+networks:
+  # traefik network to link the containers together with outside internet access
+  traefik:
+    external: true
