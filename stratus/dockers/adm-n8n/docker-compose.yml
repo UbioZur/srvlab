@@ -28,6 +28,8 @@ services:
       - N8N_PROTOCOL=https
       - NODE_ENV=production
       - WEBHOOK_URL=https://${N8N_URL}/
+      - N8N_PROXY_HOPS=1
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
     labels:
       # ROUTER Enable traefik for reverse proxy
       - traefik.enable=true
@@ -36,6 +38,7 @@ services:
       - traefik.http.routers.adm-n8n-r.tls.certresolver=cloudflare
       - traefik.http.routers.adm-n8n-r.tls.domains[0].main=${N8N_DOMAIN}
       - traefik.http.routers.adm-n8n-r.tls.domains[0].sans=*.${N8N_DOMAIN}
+      - traefik.http.routers.adm-n8n-r.tls.domains[1].main=${N8N_URL}
       - traefik.http.routers.adm-n8n-r.service=adm-n8n-s
       - traefik.http.services.adm-n8n-s.loadbalancer.server.port=5678
       # Middlewares

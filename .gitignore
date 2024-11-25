@@ -15,7 +15,7 @@ stratus/dockers/vaultwarden/data/*
 stratus/dockers/nextcloud/data/*
 stratus/dockers/nextcloud/config/*
 stratus/dockers/adm-nocodb/data/*
-stratus/dockers/adm-n8nb/data/*
+stratus/dockers/adm-n8n/data/*
 
 # Allow all .gitkeep files even if they are in a folder to ignore
 **/.gitkeep

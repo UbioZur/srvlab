@@ -19,5 +19,5 @@ install -m 600 .env.example .env
 Modify the env file
 
 * `N8N_DOMAIN`: Domain used for n8n
-* `N8N_DOMAIN_URL`: The public/webhook URL used for the n8n
-* `N8N_DOMAIN_URL2`: A secondary URL (dashboard) used to access n8n
+* `N8N_URL`: The public/webhook URL used for the n8n (ADM)
+* `N8N_URL2`: A secondary URL (dashboard) used to access n8n
