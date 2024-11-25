@@ -1,0 +1,29 @@
+##  ~ UbioZur - https://github.com/UbioZur ~  ##
+---
+services:
+  netbird:
+    image: netbirdio/netbird:0.33.0
+    container_name: netbird
+    hostname: stratus-netbird
+    security_opt:
+      - no-new-privileges
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+      - SYS_RESOURCE
+    networks:
+      - traefik
+    volumes:
+      # Synchronize timezone
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      # Persistent data folder
+      - ./data:/etc/netbird
+    environment:
+      # Setup Key
+      - NB_SETUP_KEY=${NB_SETUP_KEY}
+    restart: unless-stopped
+networks:
+  # traefik network to link the containers together with outside internet access
+  traefik:
+    external: true

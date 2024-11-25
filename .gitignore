@@ -9,13 +9,14 @@ temp.md
 **/.env
 
 # Stratus Server
+stratus/dockers/adm-nocodb/data/*
+stratus/dockers/adm-n8n/data/*
+stratus/dockers/netbird/data/*
+stratus/dockers/nextcloud/config/*
+stratus/dockers/nextcloud/data/*
 stratus/dockers/traefik/certs/*
 stratus/dockers/traefik/logs/*
 stratus/dockers/vaultwarden/data/*
-stratus/dockers/nextcloud/data/*
-stratus/dockers/nextcloud/config/*
-stratus/dockers/adm-nocodb/data/*
-stratus/dockers/adm-n8n/data/*
 
 # Allow all .gitkeep files even if they are in a folder to ignore
 **/.gitkeep
