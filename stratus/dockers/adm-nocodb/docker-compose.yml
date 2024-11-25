@@ -1,0 +1,42 @@
+##  ~ UbioZur - https://github.com/UbioZur ~  ##
+---
+services:
+  adm-nocodb:
+    image: nocodb/nocodb:0.258.2
+    container_name: adm-nocodb
+    hostname: adm-nocodb
+    security_opt:
+      - no-new-privileges
+    networks:
+      - traefik
+    volumes:
+      # Synchronize timezone
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      # Persistent data folder
+      - ./data:/usr/app/data
+    environment:
+      # Setup the env variables
+      - NC_DISABLE_TELE=true
+      # Nocodb main domain name
+      - NOCODB_DOMAIN=${NOCODB_DOMAIN}
+      # Nocodb URl to acces the dashboard
+      - NOCODB_URL=${NOCODB_URL}
+      # Nocodb public url
+      - NC_PUBLIC_URL=${NOCODB_DOMAIN}
+    labels:
+      # ROUTER Enable traefik for reverse proxy
+      - traefik.enable=true
+      - traefik.http.routers.adm-nocodb-r.rule=Host(`${NOCODB_URL}`)
+      - traefik.http.routers.adm-nocodb-r.entrypoints=websecure
+      - traefik.http.routers.adm-nocodb-r.tls.certresolver=cloudflare
+      - traefik.http.routers.adm-nocodb-r.tls.domains[0].main=${NOCODB_DOMAIN}
+      - traefik.http.routers.adm-nocodb-r.service=adm-nocodb-s
+      - traefik.http.services.adm-nocodb-s.loadbalancer.server.port=8080
+      # Middlewares
+      - traefik.http.routers.adm-nocodb-r.middlewares=default-headers@file
+    restart: unless-stopped
+networks:
+  # traefik network to link the containers together with outside internet access
+  traefik:
+    external: true
