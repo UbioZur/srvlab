@@ -34,6 +34,7 @@ services:
       - traefik.http.routers.adm-nocodb-r.tls.certresolver=cloudflare
       - traefik.http.routers.adm-nocodb-r.tls.domains[0].main=${NOCODB_DOMAIN}
       - traefik.http.routers.adm-nocodb-r.tls.domains[0].sans=*.${NOCODB_DOMAIN}
+      - traefik.http.routers.adm-nocodb-r.tls.domains[1].main=${NOCODB_URL}
       - traefik.http.routers.adm-nocodb-r.service=adm-nocodb-s
       - traefik.http.services.adm-nocodb-s.loadbalancer.server.port=8080
       # Middlewares
