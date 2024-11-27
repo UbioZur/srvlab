@@ -47,17 +47,17 @@ services:
       - traefik.http.routers.adm-n8n-r.middlewares=default-headers@file
       # MIDDLEWARE Secured CORS from public webhook URL
       - "traefik.http.middlewares.adm-n8n-cors.headers.accessControlAllowOriginList=${N8N_CORS_ORIGIN},http://localhost:1313"
-      - "traefik.http.middlewares.adm-n8n-cors.headers.accessControlAllowMethods=GET, POST, OPTIONS"
+      - "traefik.http.middlewares.adm-n8n-cors.headers.accessControlAllowMethods=GET,POST,OPTIONS"
       - "traefik.http.middlewares.adm-n8n-cors.headers.accessControlAllowHeaders=Content-Type"
-      - "traefik.http.middlewares.adm-n8n-cors.headers.accessControlAllowCredentials=true"
-      - "traefik.http.middlewares.adm-n8n-cors.headers.accessControlMaxAge=3600"
+      - "traefik.http.middlewares.adm-n8n-cors.headers.accessControlAllowCredentials=false"
+      - "traefik.http.middlewares.adm-n8n-cors.headers.accessControlMaxAge=120"
       # ROUTER Public URL
       - traefik.http.routers.adm-n8n-public-r.rule=Host(`${N8N_URL}`)
       - traefik.http.routers.adm-n8n-public-r.entrypoints=websecure
       - traefik.http.routers.adm-n8n-public-r.tls.certresolver=cloudflare
       - traefik.http.routers.adm-n8n-public-r.tls.domains[0].main=${N8N_URL}
       - traefik.http.routers.adm-n8n-public-r.service=adm-n8n-s
-      - traefik.http.routers.adm-n8n-public-r.middlewares=default-headers@file,adm-n8n-cors@docker
+      - traefik.http.routers.adm-n8n-public-r.middlewares=adm-n8n-cors@docker
     restart: unless-stopped
 networks:
   # traefik network to link the containers together with outside internet access
