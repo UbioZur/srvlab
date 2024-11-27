@@ -33,43 +33,44 @@ services:
       # Traefik CORS Middleware
       - N8N_CORS_ORIGIN=${N8N_CORS_ORIGIN}
     labels:
-      # ROUTER Enable traefik for reverse proxy
+      # Enable traefik for reverse proxy
       - traefik.enable=true
+      # SERVICE
+      - traefik.http.services.adm-n8n-s.loadbalancer.server.port=5678
+      # ROUTER Access from server url
       - traefik.http.routers.adm-n8n-r.rule=Host(`${N8N_URL2}`)
       - traefik.http.routers.adm-n8n-r.entrypoints=websecure
       - traefik.http.routers.adm-n8n-r.tls.certresolver=cloudflare
       - traefik.http.routers.adm-n8n-r.tls.domains[0].main=${N8N_DOMAIN}
       - traefik.http.routers.adm-n8n-r.tls.domains[0].sans=*.${N8N_DOMAIN}
       - traefik.http.routers.adm-n8n-r.service=adm-n8n-s
-      - traefik.http.services.adm-n8n-s.loadbalancer.server.port=5678
-      # Middlewares
       - traefik.http.routers.adm-n8n-r.middlewares=default-headers@file
-      # Public Webhook
+      # MIDDLEWARE Secured CORS from public webhook URL
+      - "traefik.http.middlewares.adm-n8n-cors.headers.accessControlAllowOriginList=${N8N_CORS_ORIGIN}"
+      - "traefik.http.middlewares.adm-n8n-cors.headers.accessControlAllowMethods=GET, POST"
+      - "traefik.http.middlewares.adm-n8n-cors.headers.accessControlAllowHeaders=Content-Type"
+      - "traefik.http.middlewares.adm-n8n-cors.headers.accessControlAllowCredentials=true"
+      - "traefik.http.middlewares.adm-n8n-cors.headers.accessControlMaxAge=3600"
+      # MIDDLEWARE Development CORS for public webhook test url
+      - "traefik.http.middlewares.adm-n8n-corstest.headers.accessControlAllowOriginList=${N8N_CORS_ORIGIN},http://localhost:1313"
+      - "traefik.http.middlewares.adm-n8n-corstest.headers.accessControlAllowMethods=GET, POST"
+      - "traefik.http.middlewares.adm-n8n-corstest.headers.accessControlAllowHeaders=Content-Type"
+      - "traefik.http.middlewares.adm-n8n-corstest.headers.accessControlAllowCredentials=true"
+      - "traefik.http.middlewares.adm-n8n-corstest.headers.accessControlMaxAge=3600"
+      # ROUTER Secured Public Webhook
       - traefik.http.routers.adm-n8n-webhook-r.rule=Host(`${N8N_URL}`) && PathPrefix(`/webhook`)
       - traefik.http.routers.adm-n8n-webhook-r.entrypoints=websecure
       - traefik.http.routers.adm-n8n-webhook-r.tls.certresolver=cloudflare
       - traefik.http.routers.adm-n8n-webhook-r.tls.domains[0].main=${N8N_URL}
       - traefik.http.routers.adm-n8n-webhook-r.service=adm-n8n-s
-      # Webhook CORS Middleware
-      - "traefik.http.middlewares.adm-n8n-cors.headers.accessControlAllowOrigin=${N8N_CORS_ORIGIN}"
-      - "traefik.http.middlewares.adm-n8n-cors.headers.accessControlAllowMethods=GET, POST, OPTIONS"
-      - "traefik.http.middlewares.adm-n8n-cors.headers.accessControlAllowHeaders=Content-Type"
-      - "traefik.http.middlewares.adm-n8n-cors.headers.accessControlAllowCredentials=true"
-      - "traefik.http.middlewares.adm-n8n-cors.headers.accessControlMaxAge=3600"
-      - traefik.http.routers.adm-n8n-webhook-r.middlewares=default-headers@file,adm-n8n-cors
-      # Test Webhook
+      - traefik.http.routers.adm-n8n-webhook-r.middlewares=default-headers@file,adm-n8n-cors@docker
+      # ROUTER Public Test Webhook
       - traefik.http.routers.adm-n8n-webhooktest-r.rule=Host(`${N8N_URL}`) && PathPrefix(`/webhook-test`)
       - traefik.http.routers.adm-n8n-webhooktest-r.entrypoints=websecure
       - traefik.http.routers.adm-n8n-webhooktest-r.tls.certresolver=cloudflare
       - traefik.http.routers.adm-n8n-webhooktest-r.tls.domains[0].main=${N8N_URL}
       - traefik.http.routers.adm-n8n-webhooktest-r.service=adm-n8n-s
-      # Webhook CORS Middleware (Also allow local development)
-      - "traefik.http.middlewares.adm-n8n-corstest.headers.accessControlAllowOrigin=${N8N_CORS_ORIGIN}, http://localhost:1313"
-      - "traefik.http.middlewares.adm-n8n-corstest.headers.accessControlAllowMethods=GET, POST, OPTIONS"
-      - "traefik.http.middlewares.adm-n8n-corstest.headers.accessControlAllowHeaders=Content-Type"
-      - "traefik.http.middlewares.adm-n8n-corstest.headers.accessControlAllowCredentials=true"
-      - "traefik.http.middlewares.adm-n8n-corstest.headers.accessControlMaxAge=3600"
-      - traefik.http.routers.adm-n8n-webhooktest-r.middlewares=default-headers@file,adm-n8n-corstest
+      - traefik.http.routers.adm-n8n-webhooktest-r.middlewares=default-headers@file,adm-n8n-corstest@docker
     restart: unless-stopped
 networks:
   # traefik network to link the containers together with outside internet access
