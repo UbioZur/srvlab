@@ -29,7 +29,7 @@ services:
       - traefik.http.routers.trilium-r.service=trilium-s
       - traefik.http.services.trilium-s.loadbalancer.server.port=8080
       # Middlewares
-      - traefik.http.routers.trilium-r.middlewares=secured@file
+      - traefik.http.routers.trilium-r.middlewares=default-headers@file
     restart: unless-stopped
 networks:
   # traefik network to link the containers together with outside internet access
