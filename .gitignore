@@ -16,6 +16,7 @@ stratus/dockers/nextcloud/config/*
 stratus/dockers/nextcloud/data/*
 stratus/dockers/traefik/certs/*
 stratus/dockers/traefik/logs/*
+stratus/dockers/trilium/data/*
 stratus/dockers/vaultwarden/data/*
 
 # Allow all .gitkeep files even if they are in a folder to ignore

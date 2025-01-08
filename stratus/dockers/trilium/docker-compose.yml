@@ -1,0 +1,37 @@
+##  ~ UbioZur - https://github.com/UbioZur ~  ##
+---
+services:
+  trilium:
+    image: triliumnext/notes:v0.90.12
+    container_name: trilium
+    hostname: trilium
+    networks:
+      - traefik
+    volumes:
+      # Synchronize timezone
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      # Persistent data folder
+      - ./data:/home/node/trilium-data
+    environment:
+      - TRILIUM_DOMAIN=${TRILIUM_DOMAIN}
+      - TRILIUM_URL=${TRILIUM_URL}
+      - USER_UID=1000
+      - USER_GID=1000
+    labels:
+      # ROUTER Enable traefik for reverse proxy
+      - traefik.enable=true
+      - traefik.http.routers.trilium-r.rule=Host(`${TRILIUM_URL}`)
+      - traefik.http.routers.trilium-r.entrypoints=websecure
+      - traefik.http.routers.trilium-r.tls.certresolver=cloudflare
+      - traefik.http.routers.trilium-r.tls.domains[0].main=${TRILIUM_DOMAIN}
+      - traefik.http.routers.trilium-r.tls.domains[0].sans=*.${TRILIUM_DOMAIN}
+      - traefik.http.routers.trilium-r.service=trilium-s
+      - traefik.http.services.trilium-s.loadbalancer.server.port=8080
+      # Middlewares
+      - traefik.http.routers.trilium-r.middlewares=secured@file
+    restart: unless-stopped
+networks:
+  # traefik network to link the containers together with outside internet access
+  traefik:
+    external: true
