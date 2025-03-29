@@ -2,7 +2,7 @@
 ---
 services:
   netbird:
-    image: netbirdio/netbird:0.33.0
+    image: netbirdio/netbird:0.39.2
     container_name: netbird
     hostname: stratus-netbird
     security_opt:

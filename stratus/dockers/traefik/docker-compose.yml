@@ -2,7 +2,7 @@
 ---
 services:
   traefik:
-    image: docker.io/library/traefik:v3.2.1
+    image: docker.io/library/traefik:v3.3.4
     container_name: traefik
     hostname: traefik
     security_opt:

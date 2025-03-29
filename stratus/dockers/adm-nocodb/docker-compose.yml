@@ -2,7 +2,7 @@
 ---
 services:
   adm-nocodb:
-    image: nocodb/nocodb:0.258.2
+    image: nocodb/nocodb:0.262.5
     container_name: adm-nocodb
     hostname: adm-nocodb
     security_opt:

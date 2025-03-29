@@ -2,7 +2,7 @@
 ---
 services:
   trilium:
-    image: triliumnext/notes:v0.90.12
+    image: triliumnext/notes:v0.92.4
     container_name: trilium
     hostname: trilium
     networks:
